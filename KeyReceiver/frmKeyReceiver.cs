@@ -28,35 +28,42 @@ namespace KeyReceiver
             InitializeComponent();
             btnClientDisconnect.Enabled = false;
             btnServerStop.Enabled = false;
-
             var parser = new FileIniDataParser();
-            G_Data = parser.ReadFile("configs.ini");
-            // Set port to saved port
-            txtPort.Text = G_Data["ServerConfig"]["Port"];
-
-            string isClientSTR = G_Data["ServerConfig"]["IsClient"];
-            bool isClient = Boolean.Parse(isClientSTR);
-
-            rdbtnClient.Checked = isClient;
-            rdbtnServer.Checked = !isClient;
-
-            string strKeys = G_Data["ClientConfig"]["TotalKeys"];
-            int i_Keys = Int32.Parse(strKeys);
-
-            /*
-            for (int i = 0; i < i_Keys; ++i)
+            try
             {
-                string clientKeySTR = G_Data["ClientConfig"]["Item"+i+ "ClientKey"];
-                string serverKeySTR = G_Data["ClientConfig"]["Item" + i + "ServerKey"];
-                lstButtons.Items.Add(new ListViewItem(new[] { clientKeySTR, serverKeySTR }));
+                G_Data = parser.ReadFile("configs.ini");
+
+            // Set port to saved port
+                txtPort.Text = G_Data["ServerConfig"]["Port"];
+                string isClientSTR = G_Data["ServerConfig"]["IsClient"];
+                bool isClient = Boolean.Parse(isClientSTR);
+
+                rdbtnClient.Checked = isClient;
+                rdbtnServer.Checked = !isClient;
+
+                string strKeys = G_Data["ClientConfig"]["TotalKeys"];
+                int i_Keys = Int32.Parse(strKeys);
 
                 
-                var clinetKey = (Keys) Enum.Parse(typeof(Keys), clientKeySTR, true);
-                var serverKey = (Keys) Enum.Parse(typeof(Keys), serverKeySTR, true);
-                keyDict.Add(new RecordKey(clinetKey, serverKey));
-                
+                for (int i = 0; i < i_Keys; ++i)
+                {
+                    string clientKeySTR = G_Data["ClientConfig"]["Item"+i+ "ClientKey"];
+                    string serverKeySTR = G_Data["ClientConfig"]["Item" + i + "ServerKey"];
+                    lstButtons.Items.Add(new ListViewItem(new[] { clientKeySTR, serverKeySTR }));
+
+                    
+                    var clinetKey = (Keys) Enum.Parse(typeof(Keys), clientKeySTR, true);
+                    var serverKey = (Keys) Enum.Parse(typeof(Keys), serverKeySTR, true);
+                    keyDict.Add(new RecordKey(clinetKey, serverKey));
+                    
+                }
             }
-        */
+            catch (Exception e)
+            {
+                // if there is no config file, a config file needs to be created
+                CreateConfigFile();
+            }
+
 
 
             Subscribe();
@@ -231,6 +238,7 @@ namespace KeyReceiver
             btnClientConnect.Enabled = false;
             clientPort = Int32.Parse(txtPort.Text);
             btnClientDisconnect.Enabled = true;
+            clientStatusBox.Text = "Conneted";
         }
 
         bool clientConnected = false;
@@ -426,7 +434,26 @@ namespace KeyReceiver
             catch (Exception exception)
             {
                 clientStatusBox.Text = "Exception ! " + exception.Message;
-                throw;
+            }
+        }
+
+        private void CreateConfigFile()
+        {
+            try
+            {
+                var parser = new FileIniDataParser();
+                IniData data = new IniData(); ;
+                data["ServerConfig"]["Port"] = "6666";
+                data["ServerConfig"]["IsClient"] = "True";
+
+                data["ClientConfig"]["ClientIP"] = "127.0.0.1";
+
+                //Save the file
+                parser.WriteFile("configs.ini", data);
+            }
+            catch (Exception exception)
+            {
+                clientStatusBox.Text = "Exception during Creating Config file ! " + exception.Message;
             }
         }
 

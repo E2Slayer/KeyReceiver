@@ -107,16 +107,32 @@ namespace KeyReceiver
          */
         private void btnServerStart_Click(object sender, EventArgs e)
         {
-            btnServerStart.Enabled = false;
-            int port = Int32.Parse(txtPort.Text);
-            IPAddress local = IPAddress.Parse("0.0.0.0");
-            listener = TcpListener.Create(port);
-            listener.Start();
+            try
+            {
+                btnServerStart.Enabled = false;
+                int port = Int32.Parse(txtPort.Text);
+                IPAddress local = IPAddress.Parse("0.0.0.0");
+                listener = TcpListener.Create(port);
+                listener.Start();
 
-            initListen();
-            serverRunning = true;
-            btnServerStop.Enabled = true;
-            readServerIP();
+                initListen();
+                serverRunning = true;
+                btnServerStop.Enabled = true;
+                readServerIP();
+            }
+            catch (Exception exception)
+            {
+                txtServerIP.Text = "This port is already being used !";
+                btnServerStop.Enabled = false;
+                serverRunning = false;
+                if (receiveSocket != null)
+                {
+                    receiveSocket.Close();
+                }
+                listener.Stop();
+                btnServerStart.Enabled = true;
+            }
+
         }
 
         private void readServerIP()
@@ -211,15 +227,22 @@ namespace KeyReceiver
          */
         private void btnServerStop_Click(object sender, EventArgs e)
         {
-            btnServerStop.Enabled = false;
-            serverRunning = false;
-            if (receiveSocket != null)
+            try
             {
-                receiveSocket.Close();
+                btnServerStop.Enabled = false;
+                serverRunning = false;
+                if (receiveSocket != null)
+                {
+                    receiveSocket.Close();
+                }
+                listener.Stop();
+                btnServerStart.Enabled = true;
+                txtServerIP.Text = "Waiting...";
             }
-            listener.Stop();
-            btnServerStart.Enabled = true;
-            txtServerIP.Text = "Waiting...";
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
         }
 
         #endregion

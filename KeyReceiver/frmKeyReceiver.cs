@@ -1,4 +1,6 @@
 ﻿using Gma.System.MouseKeyHook;
+using IniParser;
+using IniParser.Model;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -17,7 +19,7 @@ namespace KeyReceiver
     {
         private IKeyboardMouseEvents m_GlobalHook;
         private DCItemState DCItemState = new DCItemState();
-
+        private IniData G_Data;
         /**
          *  Constructor of this form.
          */
@@ -26,6 +28,36 @@ namespace KeyReceiver
             InitializeComponent();
             btnClientDisconnect.Enabled = false;
             btnServerStop.Enabled = false;
+
+            var parser = new FileIniDataParser();
+            G_Data = parser.ReadFile("configs.ini");
+            // Set port to saved port
+            txtPort.Text = G_Data["ServerConfig"]["Port"];
+
+            string isClientSTR = G_Data["ServerConfig"]["IsClient"];
+            bool isClient = Boolean.Parse(isClientSTR);
+
+            rdbtnClient.Checked = isClient;
+            rdbtnServer.Checked = !isClient;
+
+            string strKeys = G_Data["ClientConfig"]["TotalKeys"];
+            int i_Keys = Int32.Parse(strKeys);
+
+            /*
+            for (int i = 0; i < i_Keys; ++i)
+            {
+                string clientKeySTR = G_Data["ClientConfig"]["Item"+i+ "ClientKey"];
+                string serverKeySTR = G_Data["ClientConfig"]["Item" + i + "ServerKey"];
+                lstButtons.Items.Add(new ListViewItem(new[] { clientKeySTR, serverKeySTR }));
+
+                
+                var clinetKey = (Keys) Enum.Parse(typeof(Keys), clientKeySTR, true);
+                var serverKey = (Keys) Enum.Parse(typeof(Keys), serverKeySTR, true);
+                keyDict.Add(new RecordKey(clinetKey, serverKey));
+                
+            }
+        */
+
 
             Subscribe();
         }
@@ -125,7 +157,7 @@ namespace KeyReceiver
             using (NetworkStream networkStream = receiveSocket.GetStream())
             {
                 var buffer = new byte[10];
-                var byteCount = await networkStream.ReadAsync(buffer, 0, buffer.Length);
+                await networkStream.ReadAsync(buffer, 0, buffer.Length, cancellationTokenSource.Token);
 
                 // Read key from network stream
                 int keyValue = BitConverter.ToInt32(buffer, 0);
@@ -163,9 +195,8 @@ namespace KeyReceiver
                             break;
                     }
                 }
+                receiveSocket.Close();
             }
-
-            receiveSocket.Close();
         }
 
         /**
@@ -323,14 +354,7 @@ namespace KeyReceiver
                 return;
             }
 
-            if (!adding)
-            {
-                btnAddButtons.Text = "Stop";
-            }
-            else
-            {
-                btnAddButtons.Text = "Add";
-            }
+            btnAddButtons.Text = !adding ? "Stop" : "Add";
             adding = !adding;
         }
 
@@ -342,14 +366,7 @@ namespace KeyReceiver
                 return;
             }
 
-            if (!addingSpecial)
-            {
-                btnAddSpecial.Text = "Stop";
-            }
-            else
-            {
-                btnAddSpecial.Text = "Item";
-            }
+            btnAddSpecial.Text = !addingSpecial ? "Stop" : "Item";
             addingSpecial = !addingSpecial;
         }
         #endregion
@@ -380,6 +397,56 @@ namespace KeyReceiver
 
                 hitTest.Item.SubItems[1].Text = "...";
             }
+        }
+
+        private void btnSaveSettingsButtons_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var parser = new FileIniDataParser();
+
+                G_Data["ServerConfig"]["Port"] = txtPort.Text;
+                G_Data["ServerConfig"]["IsClient"] = (rdbtnClient.Checked).ToString();
+
+                G_Data["ClientConfig"]["ClientIP"] = txtClientAddress.Text;
+
+                int i = 0;
+                foreach (var key in keyDict)
+                {
+                    G_Data["ClientConfig"]["Item" + i + "ClientKey"] = (key.clientKey.ToString());
+                    G_Data["ClientConfig"]["Item" + i + "ServerKey"] = (key.serverKey.ToString());
+                    i++;
+                }
+
+                G_Data["ClientConfig"]["TotalKeys"] = i.ToString();
+                //Save the file
+                parser.WriteFile("configs.ini", G_Data);
+                clientStatusBox.Text = "Settings Saved";
+            }
+            catch (Exception exception)
+            {
+                clientStatusBox.Text = "Exception ! " + exception.Message;
+                throw;
+            }
+        }
+
+        private void btnDelButtons_Click(object sender, EventArgs e)
+        {
+            // No need to execute if there is no item in the list
+            // Or there is no selected item
+            if (lstButtons.Items.Count < 1 || lstButtons.SelectedItems.Count < 1)
+                return;
+
+            var keycode = (Keys)Enum.Parse(typeof(Keys), lstButtons.SelectedItems[0].Text, true);
+            // remove from keydict
+            if (keyDict.Any(k => k.clientKey == keycode))
+            {
+                keyDict.RemoveAll(k => k.clientKey == keycode);
+            }
+            
+            // remove from list
+            lstButtons.SelectedItems[0].Remove();
+
         }
     }
 }

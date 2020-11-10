@@ -9,7 +9,7 @@ namespace KeyReceiver
 {
     class RecordKey
     {
-        public Keys clientKey { get; }
+        public Keys clientKey { get; set; }
         public Keys serverKey { get; set; }
         public ItemState resultState { get; set; }
 

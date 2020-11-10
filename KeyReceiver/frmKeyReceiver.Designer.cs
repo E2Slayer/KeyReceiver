@@ -44,8 +44,11 @@
             this.btnClientDisconnect = new System.Windows.Forms.Button();
             this.btnClientConnect = new System.Windows.Forms.Button();
             this.txtClientAddress = new System.Windows.Forms.TextBox();
-            this.btnAddButtons = new System.Windows.Forms.Button();
             this.btnAddSpecial = new System.Windows.Forms.Button();
+            this.btnAddButtons = new System.Windows.Forms.Button();
+            this.btnDelButtons = new System.Windows.Forms.Button();
+            this.clientStatusBox = new System.Windows.Forms.TextBox();
+            this.btnSaveSettingsButtons = new System.Windows.Forms.Button();
             this.grpClientServer.SuspendLayout();
             this.grpServer.SuspendLayout();
             this.grpClient.SuspendLayout();
@@ -149,6 +152,8 @@
             // 
             // grpClient
             // 
+            this.grpClient.Controls.Add(this.clientStatusBox);
+            this.grpClient.Controls.Add(this.btnDelButtons);
             this.grpClient.Controls.Add(this.lstButtons);
             this.grpClient.Controls.Add(this.btnClientDisconnect);
             this.grpClient.Controls.Add(this.btnClientConnect);
@@ -157,7 +162,7 @@
             this.grpClient.Controls.Add(this.btnAddButtons);
             this.grpClient.Location = new System.Drawing.Point(13, 123);
             this.grpClient.Name = "grpClient";
-            this.grpClient.Size = new System.Drawing.Size(229, 166);
+            this.grpClient.Size = new System.Drawing.Size(229, 227);
             this.grpClient.TabIndex = 2;
             this.grpClient.TabStop = false;
             this.grpClient.Text = "Client settings";
@@ -168,9 +173,10 @@
             this.clnClientKey,
             this.clnServerKey});
             this.lstButtons.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.lstButtons.HideSelection = false;
             this.lstButtons.Location = new System.Drawing.Point(51, 52);
             this.lstButtons.Name = "lstButtons";
-            this.lstButtons.Size = new System.Drawing.Size(172, 108);
+            this.lstButtons.Size = new System.Drawing.Size(172, 138);
             this.lstButtons.TabIndex = 5;
             this.lstButtons.UseCompatibleStateImageBehavior = false;
             this.lstButtons.View = System.Windows.Forms.View.Details;
@@ -215,6 +221,16 @@
             this.txtClientAddress.TabIndex = 2;
             this.txtClientAddress.Text = "127.0.0.1";
             // 
+            // btnAddSpecial
+            // 
+            this.btnAddSpecial.Location = new System.Drawing.Point(6, 166);
+            this.btnAddSpecial.Name = "btnAddSpecial";
+            this.btnAddSpecial.Size = new System.Drawing.Size(39, 51);
+            this.btnAddSpecial.TabIndex = 1;
+            this.btnAddSpecial.Text = "Item";
+            this.btnAddSpecial.UseVisualStyleBackColor = true;
+            this.btnAddSpecial.Click += new System.EventHandler(this.btnAddSpecial_Click);
+            // 
             // btnAddButtons
             // 
             this.btnAddButtons.Location = new System.Drawing.Point(6, 52);
@@ -225,21 +241,41 @@
             this.btnAddButtons.UseVisualStyleBackColor = true;
             this.btnAddButtons.Click += new System.EventHandler(this.btnAddButtons_Click);
             // 
-            // btnAddSpecial
+            // btnDelButtons
             // 
-            this.btnAddSpecial.Location = new System.Drawing.Point(6, 109);
-            this.btnAddSpecial.Name = "btnAddSpecial";
-            this.btnAddSpecial.Size = new System.Drawing.Size(39, 51);
-            this.btnAddSpecial.TabIndex = 1;
-            this.btnAddSpecial.Text = "Item";
-            this.btnAddSpecial.UseVisualStyleBackColor = true;
-            this.btnAddSpecial.Click += new System.EventHandler(this.btnAddSpecial_Click);
+            this.btnDelButtons.Location = new System.Drawing.Point(6, 109);
+            this.btnDelButtons.Name = "btnDelButtons";
+            this.btnDelButtons.Size = new System.Drawing.Size(39, 51);
+            this.btnDelButtons.TabIndex = 6;
+            this.btnDelButtons.Text = "Del";
+            this.btnDelButtons.UseVisualStyleBackColor = true;
+            this.btnDelButtons.Click += new System.EventHandler(this.btnDelButtons_Click);
+            // 
+            // clientStatusBox
+            // 
+            this.clientStatusBox.Location = new System.Drawing.Point(51, 196);
+            this.clientStatusBox.Name = "clientStatusBox";
+            this.clientStatusBox.ReadOnly = true;
+            this.clientStatusBox.Size = new System.Drawing.Size(172, 20);
+            this.clientStatusBox.TabIndex = 5;
+            this.clientStatusBox.Text = "Waiting...";
+            // 
+            // btnSaveSettingsButtons
+            // 
+            this.btnSaveSettingsButtons.Location = new System.Drawing.Point(149, 356);
+            this.btnSaveSettingsButtons.Name = "btnSaveSettingsButtons";
+            this.btnSaveSettingsButtons.Size = new System.Drawing.Size(93, 22);
+            this.btnSaveSettingsButtons.TabIndex = 3;
+            this.btnSaveSettingsButtons.Text = "Save Settings";
+            this.btnSaveSettingsButtons.UseVisualStyleBackColor = true;
+            this.btnSaveSettingsButtons.Click += new System.EventHandler(this.btnSaveSettingsButtons_Click);
             // 
             // frmKeyReceiver
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(254, 296);
+            this.ClientSize = new System.Drawing.Size(254, 388);
+            this.Controls.Add(this.btnSaveSettingsButtons);
             this.Controls.Add(this.grpClient);
             this.Controls.Add(this.grpServer);
             this.Controls.Add(this.grpClientServer);
@@ -277,6 +313,9 @@
         private System.Windows.Forms.ColumnHeader clnClientKey;
         private System.Windows.Forms.ColumnHeader clnServerKey;
         private System.Windows.Forms.Button btnAddSpecial;
+        private System.Windows.Forms.TextBox clientStatusBox;
+        private System.Windows.Forms.Button btnDelButtons;
+        private System.Windows.Forms.Button btnSaveSettingsButtons;
     }
 }
 

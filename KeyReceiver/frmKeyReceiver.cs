@@ -41,6 +41,9 @@ namespace KeyReceiver
                 rdbtnClient.Checked = isClient;
                 rdbtnServer.Checked = !isClient;
 
+                string clinetIP = G_Data["ClientConfig"]["ClientIP"];
+                txtClientAddress.Text = clinetIP;
+
                 string strKeys = G_Data["ClientConfig"]["TotalKeys"];
                 int i_Keys = Int32.Parse(strKeys);
 
